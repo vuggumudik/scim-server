@@ -1,3 +1,5 @@
+
+// TODO: Implement authentication and tenant resolution
 function authenticate(key) {
     if (key) {
         return true;

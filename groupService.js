@@ -1,4 +1,9 @@
 
+
+// This is a simple in-memory store for groups.  It is not intended for production use.
+// It is only used to demonstrate the capabilities of the service.
+// DEMONSTRATION ONLY.  NOT FOR PRODUCTION USE.
+
 import _ from 'underscore';
 
 const groups = new Map();
@@ -54,6 +59,11 @@ class GroupService {
         return _.assign({}, data);
     }
 
+    // Filter groups by field and value. Filter can be an array of filter criteria.
+    // Example: [{userName: ['eq', 'bjensen']}, {active: ['eq', true]}].
+    // Please refer to https://datatracker.ietf.org/doc/html/rfc7644#section-3.4.2.2 for more details.
+    
+    // Note: This is a simple implementation.  It does not support complex filters.
     static filterGroups(filter) {
         const field = Object.getOwnPropertyNames(filter[0])[0]
         const value = filter[0][field][1]

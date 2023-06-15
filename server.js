@@ -4,7 +4,7 @@ import _ from 'underscore';
 import { authenticate, getTenant } from "./authService.js";
 import UserService from "./userService.js";
 import GroupService from "./groupService.js";
-import { generateUUID, generateFilterResponse } from "./utils.js";
+import { generateUUID } from "./utils.js";
 import { scimConfig } from "./config.js";
 import logger from "./logger.js"; // Import the logger
 import morgan from "morgan"; // Import morgan for logging
