@@ -9,6 +9,9 @@ import { scimConfig } from "./config.js";
 import logger from "./logger.js"; // Import the logger
 import morgan from "morgan"; // Import morgan for logging
 
+// Map of valid scimType codes for each HTTP status code (where applicable)
+const httpVerbToSCIMOP = { 'GET': 'READ', "POST": "CREATE", "PUT": "UPDATE", "PATCH": "PATCH", "DELETE": "DELETE" };
+
 const app = express();
 
 app.use(morgan("combined", { stream: { write: message => logger.http(message.trim()) } }));
@@ -24,7 +27,7 @@ SCIMMY.Schemas.Group.definition.extend([new SCIMMY.Types.Attribute("string", "te
 SCIMMY.Resources.declare(SCIMMY.Resources.User)
     .ingress((resource, data) => {
         logger.info(`${data.op} operation from tenant ${data.tenant}}`)
-        if (data.op == "create") {
+        if (data.op == "CREATE") {
             logger.info(`Create operation received from tenant ${data.tenant}`);
             let user = UserService.convertToUserObject(data);
             user.id = generateUUID();
@@ -32,7 +35,7 @@ SCIMMY.Resources.declare(SCIMMY.Resources.User)
             UserService.createUser(user)
             console.log(user);
             return user;
-        } else if (data.op == "update") {
+        } else if (data.op == "UPDATE") {
             logger.info(`Update operation received from tenant ${data.tenant}`);
             let user = UserService.getUser(resource.id);
             if (user) {
@@ -44,7 +47,7 @@ SCIMMY.Resources.declare(SCIMMY.Resources.User)
             } else {
                 throw new Error("User not found");
             }
-        } else if (data.op == "patch" || data.op == undefined) {
+        } else if (data.op == "PATCH" || data.op == undefined) {
             logger.info(`Patch operation recenved from tenant ${data.tenant}`);
             let cUser = UserService.convertToUserObject(data);
             cUser.id = resource.id
@@ -87,7 +90,7 @@ SCIMMY.Resources.declare(SCIMMY.Resources.User)
 SCIMMY.Resources.declare(SCIMMY.Resources.Group)
     .ingress((resource, data) => {
         logger.info(`${data.op} operation from tenant ${data.tenant}}`)
-        if (data.op == "create") {
+        if (data.op == "CREATE") {
             logger.info(`Create operation received from tenant ${data.tenant}`);
             let group = GroupService.convertToGroupObject(data);
             group.id = generateUUID();
@@ -95,7 +98,7 @@ SCIMMY.Resources.declare(SCIMMY.Resources.Group)
             GroupService.createGroup(group)
             console.log(group);
             return group;
-        } else if (data.op == "update") {
+        } else if (data.op == "UPDATE") {
             logger.info(`Update operation received from tenant ${data.tenant}`);
             let group = GroupService.getGroup(resource.id);
             if (group) {
@@ -107,7 +110,7 @@ SCIMMY.Resources.declare(SCIMMY.Resources.Group)
             } else {
                 throw new Error("Group not found");
             }
-        } else if (data.op == "patch" || data.op == undefined) {
+        } else if (data.op == "PATCH" || data.op == undefined) {
             logger.info(`Patch operation recenved from tenant ${data.tenant}`);
             let cGroup = GroupService.convertToGroupObject(data);
             cGroup.id = resource.id
@@ -122,8 +125,6 @@ SCIMMY.Resources.declare(SCIMMY.Resources.Group)
         if (resource.id != undefined) {
             let group = GroupService.getGroup(resource.id);
             if (group == undefined)
-
-
                 throw new Error("Group not found")
             else {
                 return [group]
@@ -167,35 +168,12 @@ app.use("/scim/v2", new SCIMMYRouters({
             throw new Error("Authentication failed");
         } else {
             logger.debug("Authentication success");
-            if (request.method == "GET") {
-                logger.debug("GET request");
-                request.op = "read";
-                request.body['op'] = "read";
-                request.body['tenant'] = 'test'
-            } else if (request.method == "POST") {
-                logger.debug("POST request");
-                request.body['op'] = "create";
-                request.body['tenant'] = 'test'
-            } else if (request.method == "PUT") {
-                logger.debug("PUT request");
-                request.body['op'] = "update";
-                request.body['tenant'] = 'test'
-            } else if (request.method == "PATCH") {
-                logger.debug("PATCH request");
-                request.body['op'] = "patch";
-                request.body['tenant'] = 'test'
-            } else if (request.method == "DELETE") {
-                logger.debug("DELETE request");
-                request.body['op'] = "delete";
-                request.body['tenant'] = 'test'
-            } else {
-                logger.info("Unknown request");
-                request.scimOP = "unknown";
-            }
+            request.body['tenant'] = getTenant(request);
+            request.body['op'] = httpVerbToSCIMOP[request.method];
+            console.log(request.method + ' : ' + httpVerbToSCIMOP[request.method]);
         }
     }
 }));
-
 
 // Start the server
 const port = process.env.PORT || 3000;

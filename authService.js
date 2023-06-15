@@ -7,7 +7,7 @@ function authenticate(key) {
 }
 
 function getTenant(key) {
-    return "tenant1"
+    return "test-tenant"
 }
 
 export  {
