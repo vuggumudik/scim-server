@@ -5,7 +5,14 @@ function generateUUID() {
     return uuidv4();
 }
 
-export  {
-    generateUUID
+function undefinedToEmptyStr(value, defaultValue) {
+    if (value == undefined)
+        return defaultValue;
+    else
+        return value;
 }
 
+export {
+    generateUUID,
+    undefinedToEmptyStr
+}
