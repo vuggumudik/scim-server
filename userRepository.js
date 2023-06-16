@@ -1,4 +1,8 @@
 
+// This is a simple in-memory store for users.  It is not intended for production use.
+// It is only used to demonstrate the capabilities of the service.
+// DEMONSTRATION ONLY.  NOT FOR PRODUCTION USE.
+
 import Repository from "./repository.js";
 
 class UserRepository extends Repository {

@@ -1,6 +1,3 @@
-// This is a simple in-memory store for users.  It is not intended for production use.
-// It is only used to demonstrate the capabilities of the service.
-// DEMONSTRATION ONLY.  NOT FOR PRODUCTION USE.
 
 import UserRepository from './userRepository.js';
 import _ from 'underscore';
