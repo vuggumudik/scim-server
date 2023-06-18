@@ -84,7 +84,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"schemas\": [\n        \"urn:ietf:params:scim:schemas:core:2.0:User\",\n        \"urn:ietf:params:scim:schemas:extension:enterprise:2.0:User\"\n    ],\n    \"userName\": \"vuggumudi@gmail.com\",\n    \"externalId\": \"12345\",\n    \"name\": {\n        \"givenName\": \"John\",\n        \"familyName\": \"Doe\"\n    },\n    \"emails\": [\n        {\n            \"value\": \"jdoe@example.com\",\n            \"type\": \"work\",\n            \"primary\": true\n        }\n    ],\n    \"active\": true,\n    \"urn:ietf:params:scim:schemas:extension:enterprise:2.0:User\": {\n    \"employeeNumber\": \"701984\",\n    \"costCenter\": \"4130\",\n    \"organization\": \"Universal Studios\",\n    \"division\": \"Theme Park\",\n    \"department\": \"Tour Operations\"\n  }\n}",
+					"raw": "{\n    \"schemas\": [\n        \"urn:ietf:params:scim:schemas:core:2.0:User\",\n        \"urn:ietf:params:scim:schemas:extension:enterprise:2.0:User\"\n    ],\n    \"userName\": \"testing@test.com\",\n    \"externalId\": \"12345\",\n    \"name\": {\n        \"givenName\": \"John\",\n        \"familyName\": \"Doe\"\n    },\n    \"emails\": [\n        {\n            \"value\": \"jdoe@example.com\",\n            \"type\": \"work\",\n            \"primary\": true\n        }\n    ],\n    \"active\": true,\n    \"urn:ietf:params:scim:schemas:extension:enterprise:2.0:User\": {\n    \"employeeNumber\": \"701984\",\n    \"costCenter\": \"4130\",\n    \"organization\": \"Universal Studios\",\n    \"division\": \"Theme Park\",\n    \"department\": \"Tour Operations\"\n  }\n}",
 					"options": {
 						"raw": {
 							"language": "json"
