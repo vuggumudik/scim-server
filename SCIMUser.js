@@ -1,5 +1,5 @@
 import { SCIMMY } from "scimmy-routers";
-import { extractTenant } from "./utils.js";
+import { extractTenant, extractOperation } from "./utils.js";
 
 class SCIMUser extends SCIMMY.Resources.User {
     
@@ -9,6 +9,7 @@ class SCIMUser extends SCIMMY.Resources.User {
      */
     constructor(...params) {
         super(...params);
+        this.operation = extractOperation(params);
         this.tenant = extractTenant(params);
     }
 

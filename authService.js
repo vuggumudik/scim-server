@@ -12,8 +12,9 @@ function authHandler(req) {
     } else {
         logger.debug("Authentication success");
         req.query.tenant = getTenant(req);
-        req.body['tenant'] = getTenant(req);
-        req.body['op'] = httpVerbToSCIMOP[req.method];
+
+        // req.body['tenant'] = getTenant(req);
+        req.query.operation = httpVerbToSCIMOP[req.method];
     }
 }
 

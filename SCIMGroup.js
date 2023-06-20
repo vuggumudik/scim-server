@@ -1,6 +1,6 @@
 import logger from "./logger.js";
 import { SCIMMY } from "scimmy-routers";
-import { extractTenant } from "./utils.js";
+import { extractTenant, extractOperation } from "./utils.js";
 
 class SCIMGroup extends SCIMMY.Resources.Group {
 
@@ -67,6 +67,7 @@ class SCIMGroup extends SCIMMY.Resources.Group {
 
     constructor(...params) {
         super(...params);
+        this.operation = extractOperation(params);
         this.tenant = extractTenant(params);
     }
 

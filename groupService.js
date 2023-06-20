@@ -11,34 +11,32 @@ class GroupService {
 
     async ingressHandler(resource, data) {
         try {
-            logger.info(`${data.op} operation from tenant ${resource.tenant}}`)
-            if (data.op == "CREATE") {
+            logger.info(`${resource.operation} operation from tenant ${resource.tenant}`)
+            if (resource.operation == "CREATE") {
                 logger.info(`Create operation received from tenant ${resource.tenant}`);
                 let group = this.convertToGroupObject(data);
                 group.id = generateUUID();
-                delete group.op;
                 await this.repository.createGroup(group, resource.tenant)
                 return group;
-            } else if (data.op == "UPDATE") {
+            } else if (resource.operation == "UPDATE") {
                 logger.info(`Update operation received from tenant ${data.tenant}`);
                 let group = this.repository.getGroup(resource.id, resource.tenant);
                 if (group) {
                     let cGroup = this.convertToGroupObject(data);
                     cGroup.id = resource.id
-                    delete group.op;
                     await this.repository.updateGroup(resource.id, cGroup, resource.tenant);
                     return cGroup;
                 } else {
                     throw new Error("Group not found");
                 }
-            } else if (data.op == "PATCH" || data.op == undefined) {
-                logger.info(`Patch operation received from tenant ${data.tenant}`);
+            } else if (resource.operation == "PATCH" || resource.operation == undefined) {
+                logger.info(`Patch operation received from tenant ${resource.tenant}`);
                 let cGroup = this.convertToGroupObject(data);
                 cGroup.id = resource.id
-                await this.repository.updateGroup(resource.id, cGroup);
+                await this.repository.updateGroup(resource.id, cGroup, resource.tenant);
                 return cGroup;
             } else {
-                logger.warn(`Unknown operation received from tenant ${data.tenant}`);
+                logger.warn(`Unknown operation received from tenant ${resource.tenant}`);
             }
         } catch (err) {
             logger.error(`Error in ingressHandler ${err}`)
@@ -79,7 +77,7 @@ class GroupService {
         try {
             logger.info(`Delete operation received data with id ${resource.id}`)
             let group = this.repository.getGroup(resource.id)
-            if (group == undefined) 
+            if (group == undefined)
                 throw new Error("Group not found")
             else {
                 this.repository.deleteAllUserGroupAssociation(resource.id, resource.tenant);

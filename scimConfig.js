@@ -28,11 +28,11 @@ let scimConfig = {
 
 function initSCIMMY() {
     SCIMMY.Config.set(scimConfig);
-    SCIMMY.Schemas.User.definition.extend([new SCIMMY.Types.Attribute("string", "op", { required: false })]);
-    SCIMMY.Schemas.User.definition.extend([new SCIMMY.Types.Attribute("string", "tenant", { required: false })]);
+    // SCIMMY.Schemas.User.definition.extend([new SCIMMY.Types.Attribute("string", "op", { required: false })]);
+    // SCIMMY.Schemas.User.definition.extend([new SCIMMY.Types.Attribute("string", "tenant", { required: false })]);
     SCIMMY.Schemas.User.definition.extend(SCIMMY.Schemas.EnterpriseUser.definition);
-    SCIMMY.Schemas.Group.definition.extend([new SCIMMY.Types.Attribute("string", "op", { required: false })]);
-    SCIMMY.Schemas.Group.definition.extend([new SCIMMY.Types.Attribute("string", "tenant", { required: false })]);
+    // SCIMMY.Schemas.Group.definition.extend([new SCIMMY.Types.Attribute("string", "op", { required: false })]);
+    // SCIMMY.Schemas.Group.definition.extend([new SCIMMY.Types.Attribute("string", "tenant", { required: false })]);
     extendGroupMemberAttribute(SCIMMY.Schemas.Group.definition.attributes);
     extendAddressAttribute(SCIMMY.Schemas.User.definition.attributes);
 }

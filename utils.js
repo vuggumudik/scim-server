@@ -12,18 +12,37 @@ function undefinedToEmptyStr(value, defaultValue) {
         return value;
 }
 
+// function extractTenant(params) {
+//     let jsonStr = '';
+//     if (params.length > 1) {
+//         jsonStr = params[1];
+//     } else {
+//         jsonStr = params[0];
+//     }
+//     return jsonStr.tenant;
+// }
+
 function extractTenant(params) {
-    let jsonStr = '';
-    if (params.length > 1) {
-        jsonStr = params[1];
-    } else {
-        jsonStr = params[0];
-    }
-    return jsonStr.tenant;
+    let tenant = '';
+    params.forEach(element => {
+        if (element.tenant != undefined)
+            tenant = element.tenant;
+    });
+    return tenant;
+}
+
+function extractOperation(params) {
+    let operation = '';
+    params.forEach(element => {
+        if (element.operation != undefined)
+            operation = element.operation;
+    });
+    return operation;
 }
 
 export {
     generateUUID,
     undefinedToEmptyStr,
-    extractTenant
+    extractTenant,
+    extractOperation
 }

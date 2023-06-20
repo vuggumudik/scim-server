@@ -42,27 +42,25 @@ class UserService {
 
     async ingressHandler(resource, data) {
         try {
-            logger.info(`${data.op} operation from tenant ${data.tenant}`)
-            if (data.op == "CREATE") {
+            logger.info(`${resource.operation} operation from tenant ${resource.tenant}`)
+            if (resource.operation == "CREATE") {
                 logger.info(`Create operation received from tenant ${resource.tenant}`);
                 let user = this.convertToUserObject(data);
                 user.id = generateUUID();
-                delete user.op;
                 await this.repository.createUser(user, resource.tenant)
                 return user;
-            } else if (data.op == "UPDATE") {
+            } else if (resource.operation == "UPDATE") {
                 logger.info(`Update operation received from tenant ${resource.tenant}`);
                 let user = this.repository.getUser(resource.id, resource.tenant);
                 if (user) {
                     let cUser = this.convertToUserObject(data);
                     cUser.id = resource.id
-                    delete user.op;
                     await this.repository.updateUser(resource.id, cUser, resource.tenant);
                     return cUser;
                 } else {
                     throw new Error("User not found");
                 }
-            } else if (data.op == "PATCH" || data.op == undefined) {
+            } else if (resource.operation == "PATCH" || resource.operation == undefined) {
                 logger.info(`Patch operation received from tenant ${resource.tenant}`);
                 let cUser = this.convertToUserObject(data);
                 cUser.id = resource.id
