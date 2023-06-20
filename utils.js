@@ -12,7 +12,18 @@ function undefinedToEmptyStr(value, defaultValue) {
         return value;
 }
 
+function extractTenant(params) {
+    let jsonStr = '';
+    if (params.length > 1) {
+        jsonStr = params[1];
+    } else {
+        jsonStr = params[0];
+    }
+    return jsonStr.tenant;
+}
+
 export {
     generateUUID,
-    undefinedToEmptyStr
+    undefinedToEmptyStr,
+    extractTenant
 }

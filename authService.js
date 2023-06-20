@@ -11,9 +11,9 @@ function authHandler(req) {
         throw new Error("Authentication failed");
     } else {
         logger.debug("Authentication success");
+        req.query.tenant = getTenant(req);
         req.body['tenant'] = getTenant(req);
         req.body['op'] = httpVerbToSCIMOP[req.method];
-        console.log(req.method + ' : ' + httpVerbToSCIMOP[req.method]);
     }
 }
 

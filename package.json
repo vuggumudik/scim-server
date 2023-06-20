@@ -2,7 +2,7 @@
   "name": "scim-server",
   "version": "1.0.0",
   "description": "Simple SCIM 2.0 server implementation",
-  "main": "server.js",
+  "main": "crud.js",
   "scripts": {
     "test": "jest",
     "start": "node server.js"
@@ -13,9 +13,12 @@
     "body-parser": "^1.20.2",
     "express": "^4.18.2",
     "morgan": "^1.10.0",
+    "node-sqlite": "^0.0.2-security",
     "scim2-node": "^3.0.1",
     "scimmy": "^0.10.0",
     "scimmy-routers": "^0.10.0",
+    "sqlite": "^4.2.1",
+    "sqlite3": "^5.1.6",
     "underscore": "^1.13.6",
     "uuid": "^9.0.0",
     "winston": "^3.9.0"

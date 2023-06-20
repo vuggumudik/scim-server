@@ -1,32 +1,37 @@
 
-import UserRepository from './userRepository.js';
 import _ from 'underscore';
 import { generateUUID, undefinedToEmptyStr } from './utils.js';
 import logger from './logger.js';
 
-
 class UserService {
 
-    constructor() {
-        this.userRepository = new UserRepository();
+    constructor(repository) {
+        this.repository = repository;
     }
 
-    egressHandler(resource, data) {
+    async egressHandler(resource, data) {
         try {
             logger.info(`Read operation received with id ${resource.id} and filter ${resource.filter} and constraints ${resource.constraints}`)
             const filter = resource.filter
             if (resource.id != undefined) {
-                let user = this.userRepository.getUser(resource.id);
-                if (user == undefined)
+                let user = await this.repository.getUser(resource.id, resource.tenant);
+                if (user == undefined) {
+                    logger.error(`User not found with id ${resource.id}`)
                     throw new Error("User not found")
-                else {
+                } else {
                     return [user]
                 }
             } else if (filter != undefined && filter.length > 0) {
-                let users = this.userRepository.filterUsers(filter);
+                let users = await this.repository.filterUsers(filter, resource.tenant);
                 return users
             } else {
-                return [...this.userRepository.getUsers()];
+                let users = await this.repository.getUsers(resource.tenant);
+                if (users == undefined) {
+                    logger.error(`Users not found`)
+                    throw new Error("Users not found")
+                } else {
+                    return users;
+                }
             }
         } catch (err) {
             logger.error(err);
@@ -35,36 +40,36 @@ class UserService {
         return undefined;
     }
 
-    ingressHandler(resource, data) {
+    async ingressHandler(resource, data) {
         try {
             logger.info(`${data.op} operation from tenant ${data.tenant}`)
             if (data.op == "CREATE") {
-                logger.info(`Create operation received from tenant ${data.tenant}`);
+                logger.info(`Create operation received from tenant ${resource.tenant}`);
                 let user = this.convertToUserObject(data);
                 user.id = generateUUID();
                 delete user.op;
-                this.userRepository.createUser(user)
+                await this.repository.createUser(user, resource.tenant)
                 return user;
             } else if (data.op == "UPDATE") {
-                logger.info(`Update operation received from tenant ${data.tenant}`);
-                let user = this.userRepository.getUser(resource.id);
+                logger.info(`Update operation received from tenant ${resource.tenant}`);
+                let user = this.repository.getUser(resource.id, resource.tenant);
                 if (user) {
                     let cUser = this.convertToUserObject(data);
                     cUser.id = resource.id
                     delete user.op;
-                    this.userRepository.updateUser(resource.id, cUser);
+                    await this.repository.updateUser(resource.id, cUser, resource.tenant);
                     return cUser;
                 } else {
                     throw new Error("User not found");
                 }
             } else if (data.op == "PATCH" || data.op == undefined) {
-                logger.info(`Patch operation received from tenant ${data.tenant}`);
+                logger.info(`Patch operation received from tenant ${resource.tenant}`);
                 let cUser = this.convertToUserObject(data);
                 cUser.id = resource.id
-                this.userRepository.updateUser(resource.id, cUser);
+                this.repository.updateUser(resource.id, cUser, resource.tenant);
                 return cUser;
             } else {
-                logger.warn(`Unknown operation received from tenant ${data.tenant}`);
+                logger.warn(`Unknown operation received from tenant ${resource.tenant}`);
             }
         } catch (err) {
             logger.error(err);
@@ -76,11 +81,12 @@ class UserService {
     degressHandler(resource) {
         try {
             logger.info(`Delete operation received data with id ${resource.id}`)
-            let user = this.userRepository.getUser(resource.id)
-            if (user == undefined)
+            let user = this.repository.getUser(resource.id)
+            if (user == undefined) {
+                logger.error(`User not found with id ${resource.id}`)
                 throw new Error("User not found")
-            else {
-                this.deleteUser(resource.id);
+            } else {
+                this.repository.deleteUser(resource.id);
             }
         } catch (err) {
             logger.error(err);

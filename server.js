@@ -7,6 +7,12 @@ import UserService from "./userService.js";
 import GroupService from "./groupService.js";
 import { authHandler } from "./authService.js";
 import SCIMMYRouters, { SCIMMY } from "scimmy-routers";
+// import InMemoryRepository from './repo/inMemoryRepo.js';
+import Repository from './repo/sqliteRepo.js';
+import SCIMGroup from './SCIMGroup.js';
+import SCIMUser from './SCIMUser.js';
+
+
 
 const app = express();
 
@@ -16,18 +22,32 @@ logger.info("Starting SCIMMY server...");
 
 initSCIMMY();
 
-let groupService = new GroupService();
-let userService = new UserService();
+// const repository = new InMemoryRepository()
+const repository = new Repository();
+let groupService = new GroupService(repository);
+let userService = new UserService(repository);
 
-SCIMMY.Resources.declare(SCIMMY.Resources.User)
+// SCIMMY.Resources.declare(SCIMMY.Resources.User)
+//     .ingress((resource, data) => { return userService.ingressHandler(resource, data); })
+//     .egress(resource => { return userService.egressHandler(resource); })
+//     .degress(resource => { return userService.degressHandler(resource); });
+
+// SCIMMY.Resources.declare(SCIMMY.Resources.Group)
+//     .ingress((resource, data) => { return groupService.ingressHandler(resource, data); })
+//     .egress(resource => { return groupService.egressHandler(resource); })
+//     .degress(resource => { return groupService.degressHandler(resource); });
+
+
+SCIMMY.Resources.declare(SCIMUser)
     .ingress((resource, data) => { return userService.ingressHandler(resource, data); })
     .egress(resource => { return userService.egressHandler(resource); })
     .degress(resource => { return userService.degressHandler(resource); });
 
-SCIMMY.Resources.declare(SCIMMY.Resources.Group)
+SCIMMY.Resources.declare(SCIMGroup)
     .ingress((resource, data) => { return groupService.ingressHandler(resource, data); })
     .egress(resource => { return groupService.egressHandler(resource); })
-    .degress(resource => { return groupService.degressHandler(resource); });
+    .degress(resource => { return groupService.degressHandler(resource); })
+    .patch((resource, data) => { return groupService.patchHandler(resource, data); });
 
 // Log all requests using logger
 app.use((req, res, next) => {
