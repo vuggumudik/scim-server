@@ -1,21 +1,14 @@
 
 import logger from "./logger.js";
 
-// Map of valid scimType codes for each HTTP status code (where applicable)
-const httpVerbToSCIMOP = { 'GET': 'READ', "POST": "CREATE", "PUT": "UPDATE", "PATCH": "PATCH", "DELETE": "DELETE" };
 
 // TODO: Implement authentication and tenant resolution
 function authHandler(req) {
-     if (!authenticate(req)) {
+    if (!authenticate(req)) {
         logger.info("Authentication failed");
         throw new Error("Authentication failed");
-    } else {
-        logger.debug("Authentication success");
-        req.query.tenant = getTenant(req);
-
-        // req.body['tenant'] = getTenant(req);
-        req.query.operation = httpVerbToSCIMOP[req.method];
     }
+    logger.debug("Authentication success");
 }
 
 // Need to implement this method
@@ -35,6 +28,5 @@ function getTenant(key) {
 export {
     authHandler,
     authenticate,
-    getTenant,
-    httpVerbToSCIMOP
+    getTenant
 }
