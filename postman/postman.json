@@ -27,7 +27,7 @@
 							},
 							{
 								"key": "Authorization",
-								"value": "Bearer test",
+								"value": "Bearer okta",
 								"type": "default"
 							},
 							{
@@ -38,7 +38,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"schemas\": [\n        \"urn:ietf:params:scim:schemas:core:2.0:User\",\n        \"urn:ietf:params:scim:schemas:extension:enterprise:2.0:User\"\n    ],\n    \"userName\": \"acjohn.doe@test.com\",\n    \"externalId\": \"12345\",\n    \"name\": {\n        \"givenName\": \"John\",\n        \"familyName\": \"Doe\"\n    },\n    \"emails\": [\n        {\n            \"value\": \"jdoe@test.com\",\n            \"type\": \"work\",\n            \"primary\": true\n        }\n    ],\n    \"active\": true,\n    \"urn:ietf:params:scim:schemas:extension:enterprise:2.0:User\": {\n    \"employeeNumber\": \"1\",\n    \"costCenter\": \"1\",\n    \"organization\": \"XYZ Inc\",\n    \"division\": \"Engineering\",\n    \"department\": \"IT\"\n  }\n}",
+							"raw": "{\n    \"schemas\": [\n        \"urn:ietf:params:scim:schemas:core:2.0:User\",\n        \"urn:ietf:params:scim:schemas:extension:enterprise:2.0:User\"\n    ],\n    \"userName\": \"john.doe8@test.com\",\n    \"externalId\": \"bk200\",\n    \"name\": {\n        \"givenName\": \"John\",\n        \"familyName\": \"Doe\"\n    },\n    \"emails\": [\n        {\n            \"value\": \"jdoe@test.com\",\n            \"type\": \"\",\n            \"primary\": true\n        }\n    ],\n    \n    \"active\": true,\n    \"urn:ietf:params:scim:schemas:extension:enterprise:2.0:User\": {\n    \"employeeNumber\": \"1\",\n    \"costCenter\": \"1\",\n    \"organization\": \"XYZ Inc\",\n    \"division\": \"Engineering\",\n    \"department\": \"IT\"\n  }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -46,16 +46,64 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:3000/scim/v2/Users",
-							"protocol": "http",
+							"raw": "{{url}}/scim/v2/Users",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "3000",
 							"path": [
 								"scim",
 								"v2",
 								"Users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-api-token",
+								"value": "one",
+								"type": "default"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer okta",
+								"type": "default"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/scim+json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"schemas\": [\n        \"urn:ietf:params:scim:schemas:core:2.0:User\",\n        \"urn:ietf:params:scim:schemas:extension:enterprise:2.0:User\"\n    ],\n    \"id\": \"672c1330-2bce-48fa-9195-dfde894aa31c\",\n    \"meta\": {\n        \"resourceType\": \"User\",\n        \"location\": \"/scim/v2/Users/672c1330-2bce-48fa-9195-dfde894aa31c\"\n    },\n    \"userName\": \"bnjohn.doe@test.com\",\n    \"name\": {\n        \"familyName\": \"Updated Doe\",\n        \"givenName\": \"John\"\n    },\n    \"active\": true,\n    \"emails\": [\n        {\n            \"value\": \"bn.jdoe@test.com\",\n            \"type\": \"work\",\n            \"primary\": true\n        }\n    ],\n    \"externalId\": \"bn200\",\n    \"urn:ietf:params:scim:schemas:extension:enterprise:2.0:User\": {\n        \"employeeNumber\": \"1\",\n        \"costCenter\": \"1\",\n        \"organization\": \"XYZ Inc\",\n        \"division\": \"Engineering\",\n        \"department\": \"IT\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/scim/v2/Users/3cd0a3b0-5e7c-4d76-9421-135657f5a556",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"scim",
+								"v2",
+								"Users",
+								"3cd0a3b0-5e7c-4d76-9421-135657f5a556"
 							]
 						}
 					},
@@ -89,7 +137,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"schemas\": [\n        \"urn:ietf:params:scim:api:messages:2.0:PatchOp\"\n    ],\n    \"id\": \"04933228-5582-47fa-b897-1624f551534b\",\n    \"Operations\": [\n        {\n            \"op\": \"replace\",\n            \"value\": {\n                \"name\": {\n                    \"givenName\": \"Patched John\",\n                    \"familyName\": \"Doe\"\n                }\n            }\n        }\n    ]\n}",
+							"raw": "{\n    \"schemas\": [\n        \"urn:ietf:params:scim:api:messages:2.0:PatchOp\"\n    ],\n    \"id\": \"04933228-5582-47fa-b897-1624f551534b\",\n    \"Operations\": [\n        {\n            \"op\": \"add\",\n            \"path\": \"name.familyName\",\n            \"value\": \"Ninja Turtle\"\n        },\n        {\n            \"op\": \"remove\",\n            \"path\": \"addresses[type eq \\\"work\\\"].streetAddress\",\n            \"value\": \"1010 Broadway Ave 200\"\n        },\n        {\n            \"op\": \"replace\",\n            \"path\": \"phoneNumbers[type eq \\\"work\\\"].value\",\n            \"value\": \"92345\"\n        }\n    ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -97,17 +145,15 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:3000/scim/v2/Users/a544a4dc-d6c5-4df1-93e4-3d7fb7ee0609",
-							"protocol": "http",
+							"raw": "{{url}}/scim/v2/Users/f4c4b58a-4e70-4b15-8168-2f318f2bb80c",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "3000",
 							"path": [
 								"scim",
 								"v2",
 								"Users",
-								"a544a4dc-d6c5-4df1-93e4-3d7fb7ee0609"
+								"f4c4b58a-4e70-4b15-8168-2f318f2bb80c"
 							]
 						}
 					},
@@ -142,17 +188,15 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:3000/scim/v2/Users/bfa05e87-5d32-4708-a1cf-793959716b80",
-							"protocol": "http",
+							"raw": "{{url}}/scim/v2/Users/f4c4b58a-4e70-4b15-8168-2f318f2bb80c",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "3000",
 							"path": [
 								"scim",
 								"v2",
 								"Users",
-								"bfa05e87-5d32-4708-a1cf-793959716b80"
+								"f4c4b58a-4e70-4b15-8168-2f318f2bb80c"
 							]
 						}
 					},
@@ -187,12 +231,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:3000/scim/v2/Users/",
-							"protocol": "http",
+							"raw": "{{url}}/scim/v2/Users/",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "3000",
 							"path": [
 								"scim",
 								"v2",
@@ -218,7 +260,7 @@
 							},
 							{
 								"key": "Authorization",
-								"value": "Bearer test",
+								"value": "Bearer okta",
 								"type": "default"
 							}
 						],
@@ -232,12 +274,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:3000/scim/v2/Users?filter=userName%20eq%20%22ajohn.doe@test.com%22&startIndex=1&count=100'",
-							"protocol": "http",
+							"raw": "{{url}}/scim/v2/Users?filter=userName%20eq%20%22test%40test.com%22&startIndex=1&count=100",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "3000",
 							"path": [
 								"scim",
 								"v2",
@@ -246,7 +286,7 @@
 							"query": [
 								{
 									"key": "filter",
-									"value": "userName%20eq%20%22ajohn.doe@test.com%22"
+									"value": "userName%20eq%20%22test%40test.com%22"
 								},
 								{
 									"key": "startIndex",
@@ -254,7 +294,7 @@
 								},
 								{
 									"key": "count",
-									"value": "100'"
+									"value": "100"
 								}
 							]
 						}
@@ -292,12 +332,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:3000/scim/v2/Users/e1ef44d9-a1b5-4aef-9734-7351dc1d5465",
-							"protocol": "http",
+							"raw": "{{url}}/scim/v2/Users/e1ef44d9-a1b5-4aef-9734-7351dc1d5465",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "3000",
 							"path": [
 								"scim",
 								"v2",
@@ -344,12 +382,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:3000/scim/v2/Users/bfa05e87-5d32-4708-a1cf-793959716b80",
-							"protocol": "http",
+							"raw": "{{url}}/scim/v2/Users/bfa05e87-5d32-4708-a1cf-793959716b80",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "3000",
 							"path": [
 								"scim",
 								"v2",
@@ -388,7 +424,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"schemas\": [\"urn:ietf:params:scim:schemas:core:2.0:Group\"],\n    \"displayName\": \"Test Group A\",\n    \"members\": [\n    ]\n}\n",
+							"raw": "{\n    \"schemas\": [\"urn:ietf:params:scim:schemas:core:2.0:Group\"],\n    \"displayName\": \"Test Group B\",\n    \"members\": [\n    ]\n}\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -396,12 +432,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:3000/scim/v2/Groups",
-							"protocol": "http",
+							"raw": "{{url}}/scim/v2/Groups",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "3000",
 							"path": [
 								"scim",
 								"v2",
@@ -447,12 +481,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:3000/scim/v2/Groups/318976b2-f613-4bc4-b9d4-8eb30c305c30",
-							"protocol": "http",
+							"raw": "{{url}}/scim/v2/Groups/318976b2-f613-4bc4-b9d4-8eb30c305c30",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "3000",
 							"path": [
 								"scim",
 								"v2",
@@ -499,12 +531,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:3000/scim/v2/Groups/318976b2-f613-4bc4-b9d4-8eb30c305c30",
-							"protocol": "http",
+							"raw": "{{url}}/scim/v2/Groups/318976b2-f613-4bc4-b9d4-8eb30c305c30",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "3000",
 							"path": [
 								"scim",
 								"v2",
@@ -551,12 +581,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:3000/scim/v2/Groups/6ea4ff1c-5a24-4cb0-b7b5-0ef1e6c4bf5e",
-							"protocol": "http",
+							"raw": "{{url}}/scim/v2/Groups/6ea4ff1c-5a24-4cb0-b7b5-0ef1e6c4bf5e",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "3000",
 							"path": [
 								"scim",
 								"v2",
@@ -596,12 +624,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:3000/scim/v2/Groups",
-							"protocol": "http",
+							"raw": "{{url}}/scim/v2/Groups",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "3000",
 							"path": [
 								"scim",
 								"v2",
@@ -640,17 +666,58 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:3000/scim/v2/Groups/318976b2-f613-4bc4-b9d4-8eb30c305c30",
-							"protocol": "http",
+							"raw": "{{url}}/scim/v2/Groups/186a9327-0630-4b55-a1c0-f36f7af6524a",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "3000",
 							"path": [
 								"scim",
 								"v2",
 								"Groups",
-								"318976b2-f613-4bc4-b9d4-8eb30c305c30"
+								"186a9327-0630-4b55-a1c0-f36f7af6524a"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Group Filter",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-token",
+								"value": "one",
+								"type": "default"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer test",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/scim/v2/Groups/186a9327-0630-4b55-a1c0-f36f7af6524a",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"scim",
+								"v2",
+								"Groups",
+								"186a9327-0630-4b55-a1c0-f36f7af6524a"
 							]
 						}
 					},
@@ -682,12 +749,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:3000/scim/v2/Users/04e0018b-d901-469c-9482-b5ff46178256",
-							"protocol": "http",
+							"raw": "{{url}}/scim/v2/Users/04e0018b-d901-469c-9482-b5ff46178256",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "3000",
 							"path": [
 								"scim",
 								"v2",
@@ -699,6 +764,32 @@
 					"response": []
 				}
 			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "http://localhost:3000"
 		}
 	]
 }
