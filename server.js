@@ -9,7 +9,7 @@ import SCIMMYRouters from "scimmy-routers";
 import Repository from './repo/repository.js';
 import SCIMGroup from './SCIMGroup.js';
 import SCIMUser from './SCIMUser.js';
-import ui from './ui/ui.js';
+// import ui from './ui/ui.js';
 // Map HTTP verbs to SCIM operations
 const httpVerbToSCIMOP = {
     'GET': 'READ',
@@ -100,7 +100,7 @@ app.use((req, res, next) => {
     next();
 });
 
-app.get('/ui', ui);
+// app.get('/ui', ui);
  
 // Mount SCIMMY routers for handling SCIM endpoints
 app.use("/scim/v2", new SCIMMYRouters({
