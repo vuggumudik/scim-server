@@ -1,52 +1,70 @@
-
 import _ from 'underscore';
-import { generateUUID } from './utils.js';
+import { generateUUID, getEgressLogString } from './utils.js';
 import logger from './logger.js';
+import { addMissingComplexTypes, cleanUpData } from "./userUtils.js"
 
 /**
- * User service class that handles all the user related operations such as read, update, delete etc.
+ * User service class that handles all the user related operations such as read, update, delete, etc.
  */
 class UserService {
-
     constructor(repository) {
-        this.repository = repository;
+        this.repo = repository;
+        // const { getUser, filterUsers, getUsers, createUser, updateUser, deleteUser } = this.repository;
+        // this.getUser = getUser;
+        // this.filterUsers = filterUsers;
+        // this.getUsers = getUsers;
+        // this.createUser = createUser;
+        // this.updateUser = updateUser;
+        // this.deleteUser = deleteUser;
     }
 
     async egressHandler(resource, data) {
         try {
-            logger.info(`{resource.tenant} : Read operation received with id ${resource.id} and filter 
-            ${resource.filter} and constraints ${resource.constraints}`)
-            const filter = resource.filter
-            if (resource.id) {
-                let user = await this.repository.getUser(resource.id, resource.tenant);
+            logger.info(`User : ${getEgressLogString(resource)}`);
+
+            const { id, filter, operation, tenant } = resource;
+
+            if (id) {
+                let user = await this.repo.getUser(id, tenant);
                 if (user) {
-                    if (resource.operation == "PATCH") {
-                        user = this.addMissingComplexTypes(user);
+                    if (operation === "PATCH") {
+                        user = addMissingComplexTypes(user);
                     }
-                    log.debug(`{resource.tenant} : User found with id ${resource.id}`)
-                    return [user]
+                    // Log the user found with id
+                    logger.debug(`User found with id ${id}`);
+                    return [user];
                 } else {
-                    logger.error(`{resource.tenant} : User not found with id ${resource.id}`)
-                    throw new Error("User not found")
+                    // Log the user not found with id
+                    logger.error(`User not found with id ${id}`);
+                    throw new Error("User not found");
                 }
             } else if (filter && filter.length > 0) {
-                log.debug(`{resource.tenant} : Filter is ${filter}`)
-                let users = await this.repository.filterUsers(filter, resource.tenant);
-                if (users == undefined) 
-                    logger.error(`{resource.tenant} : Users not found with filter ${filter}`)
-                else 
-                    log.debug(`{resource.tenant} : Number of users found is ${users.length}`)
-                return users
+                // Log the filter details
+                logger.debug(`${tenant} : Filter is ${filter}`);
+
+                const users = await this.repo.filterUsers(filter, tenant);
+
+                if (!users) {
+                    logger.error(`Users not found with filter ${filter}`);
+                } else {
+                    logger.debug(`Number of users found is ${users.length}`);
+                }
+
+                return users;
             } else {
                 // Return all users. Pagination is not implemented.
-                let users = await this.repository.getUsers(resource.tenant);
-                if (users) return users;
-                else {
-                    logger.error(`{resource.tenant} : Users not found`);
-                    throw new Error("Users not found")
-                } 
+                const users = await this.repo.getUsers(tenant);
+
+                if (users) {
+                    return users;
+                } else {
+                    // Log users not found
+                    logger.error('Users not found');
+                    throw new Error("Users not found");
+                }
             }
         } catch (err) {
+            // Log the error
             logger.error(err);
             throw err;
         }
@@ -54,96 +72,141 @@ class UserService {
 
     async ingressHandler(resource, data) {
         try {
-            logger.info(`${resource.operation} operation from tenant ${resource.tenant}`)
-            logger.debug(`Data: ${JSON.stringify(data)}`)
-            if (resource.operation == "CREATE") {
-                logger.info(`Create operation received from tenant ${resource.tenant}`);
-                let user = this.convertToUserObject(data, resource.operation);
+            // Log the operation and data details
+            logger.info(`Received ${resource.operation} request for user with id ${resource.id}`);
+            logger.info(`Data: ${JSON.stringify(data)}`);
+
+            const { operation, id, tenant } = resource;
+
+            if (operation === "CREATE") {
+                // Log the create operation
+                const user = _.assign({}, data);
                 user.id = generateUUID();
-                await this.repository.createUser(user, resource.tenant)
+                await this.repo.createUser(user, tenant);
                 return user;
-            } else if (resource.operation == "UPDATE") {
-                logger.info(`Update operation received from tenant ${resource.tenant}`);
-                let user = this.repository.getUser(resource.id, resource.tenant);
+            } else if (operation === "UPDATE") {
+                // Log the update operation
+                let user = this.repo.getUser(id, tenant);
                 if (user) {
-                    let cUser = this.convertToUserObject(data);
-                    cUser.id = resource.id
-                    await this.repository.updateUser(resource.id, cUser, resource.tenant);
+                    const cUser = _.assign({}, data);
+                    cUser.id = id;
+                    await this.repo.updateUser(id, cUser, tenant);
                     return cUser;
                 } else {
                     throw new Error("User not found");
                 }
-            } else if (resource.operation == "PATCH" || resource.operation == undefined) {
-                logger.info(`Patch operation received from tenant ${resource.tenant}`);
-                // Patch operations are failing with out this fix. Changing the opensource library is complicated matter.
-                // So implementing this workaround for now.
-                let cUser = this.convertToUserObject(data);
-                cUser.id = resource.id
-                this.repository.updateUser(resource.id, cUser, resource.tenant);
-                return cUser;
+            } else if (operation === "PATCH" || operation === undefined) {
+                // Log the patch operation
+                const cUser = _.assign({}, data);
+                cUser.id = id;
+                await this.repo.updateUser(id, cUser, tenant);
+                // Clean up the data before returning
+                return cleanUpData(cUser);
             } else {
-                logger.warn(`Unknown operation received from tenant ${resource.tenant}`);
+                // Log unknown operation
+                logger.warn(`Operation ${operation} is unknown`);
             }
         } catch (err) {
+            // Log the error
             logger.error(err);
             throw err;
         }
     }
 
-    degressHandler(resource) {
+    async degressHandler(resource) {
         try {
-            logger.info(`Delete operation received data with id ${resource.id}`)
-            let user = this.repository.getUser(resource.id)
-            if (user == undefined) {
-                logger.error(`User not found with id ${resource.id}`)
-                throw new Error("User not found")
+            // Log the delete operation with id
+            logger.info(`Delete operation received data with id ${resource.id}`);
+
+            const { id } = resource;
+            let user = await this.repo.getUser(id);
+            if (!user) {
+                // Log user not found with id
+                logger.error(`User with ${id} not found`);
+                throw new Error("User not found");
             } else {
-                this.repository.deleteUser(resource.id);
+                // Implementation of this delete user should take into account the cascading delete of the user (e.g. delete any group membership, etc.)
+                await this.repo.deleteUser(id);
             }
         } catch (err) {
+            // Log the error
             logger.error(err);
             throw err;
         }
     }
 
-    // This is a workaround and need to be fixed in the future. Also, there is probably no need to support all types of
-    // phones, emails and addresses. We can just support one of each type.
-    convertToUserObject(data, operation = "READ") {
-
-        if (operation == "PATCH") {
-            if (data.emails == undefined) {
-                data.emails = [{ "value": "", "primary": true, "type": "work" },
-                { "primary": false, "type": "home" },
-                { "primary": false, "type": "other" }];
-            }
-            if (data.phoneNumbers == undefined) {
-                data.phoneNumbers = [{ "type": "work", "primary": true },
-                { "type": "home", "primary": false },
-                { "type": "mobile", "primary": false }];
-            }
-            if (data.addresses == undefined) {
-                data.addresses = [{ "type": "work" }, { "type": "home" }, { "type": "other" }];
-            }
-        }
-        return _.assign({}, data);
-    }
-
+    // This is a workaround and needs to be fixed in the future. Also, there is probably no need to support all types of
+    // phones, emails, and addresses. We can just support one of each type.
     addMissingComplexTypes(data) {
-        if (data.emails == undefined) {
-            data.emails = [{ "value": "", "primary": true, "type": "work" },
+        const defaultEmails = [
+            { "value": "", "primary": true, "type": "work" },
             { "primary": false, "type": "home" },
-            { "primary": false, "type": "other" }];
-        }
-        if (data.phoneNumbers == undefined) {
-            data.phoneNumbers = [{ "type": "work", "primary": true },
+            { "primary": false, "type": "other" }
+        ];
+        const defaultPhoneNumbers = [
+            { "type": "work", "primary": true },
             { "type": "home", "primary": false },
-            { "type": "mobile", "primary": false }];
+            { "type": "mobile", "primary": false }
+        ];
+        const defaultAddresses = [
+            { "type": "work" },
+            { "type": "home" },
+            { "type": "other" }
+        ];
+
+        if (!data.emails) {
+            data.emails = defaultEmails;
+        } else {
+            const missingEmailTypes = defaultEmails.filter(email => !data.emails.find(e => e.type === email.type));
+            data.emails.push(...missingEmailTypes);
         }
-        if (data.addresses == undefined) {
-            data.addresses = [{ "type": "work" }, { "type": "home" }, { "type": "other" }];
+
+        if (!data.phoneNumbers) {
+            data.phoneNumbers = defaultPhoneNumbers;
+        } else {
+            const missingPhoneNumberTypes = defaultPhoneNumbers.filter(phone => !data.phoneNumbers.find(p => p.type === phone.type));
+            data.phoneNumbers.push(...missingPhoneNumberTypes);
         }
+
+        if (!data.addresses) {
+            data.addresses = defaultAddresses;
+        } else {
+            const missingAddressTypes = defaultAddresses.filter(address => !data.addresses.find(a => a.type === address.type));
+            data.addresses.push(...missingAddressTypes);
+        }
+
+        // If type is not present, set it to the one that is missing. 
+        data.emails.forEach(email => {
+            if (!email.type) email.type = "work";
+        });
+        data.phoneNumbers.forEach(phone => {
+            if (!phone.type) phone.type = "work";
+        });
+        data.addresses.forEach(address => {
+            if (!address.type) address.type = "work";
+        });
+
         return data;
     }
+
+    cleanUpData(data) {
+        // Remove the phonenumbers, emails, and addresses if the value is not present
+        if (data.phoneNumbers) {
+            data.phoneNumbers = data.phoneNumbers.filter(phone => phone.value);
+        };
+        if (data.phoneNumbers && data.phoneNumbers.length === 0) delete data.phoneNumbers;
+        if (data.emails) {
+            data.emails = data.emails.filter(email => email.value);
+        }
+        if (data.emails && data.emails.length === 0) delete data.emails;
+        if (data.addresses) {
+            data.addresses = data.addresses.filter(address => address.streetAddress || address.locality || address.region || address.postalCode || address.country);
+        }
+        if (data.addresses && data.addresses.length === 0) delete data.addresses;
+        return data;
+    }
+
+
 }
 
 export default UserService;

@@ -1,6 +1,7 @@
 import { SCIMMY } from "scimmy-routers";
 import logger from "./logger.js";
-import { extractTenant, extractOperation, normilizePatchOp } from "./utils.js";
+import { extractTenant, extractOperation, normalizePatchOp } from "./utils.js";
+import { fixMissingCanonicalTypes } from "./userUtils.js";
 
 /**
  * This class is an extension of the SCIMMY User resource. 
@@ -37,7 +38,9 @@ class SCIMUser extends SCIMMY.Resources.User {
 
     async write(instance) {
         try {
-            return super.write(instance);
+            // Yet another fix for requests that are not coming with proper 
+            // conanical values for the complex attributes such as emails, phone numbers and addresses.
+            return super.write(fixMissingCanonicalTypes(instance));
         } catch (ex) {
             logger.error(ex);
             // Send a more generic error back as much as possible.
@@ -51,7 +54,7 @@ class SCIMUser extends SCIMMY.Resources.User {
 
         try {
             logger.info("Patch message is : " + JSON.stringify(message));
-            message = normilizePatchOp(message);
+            message = normalizePatchOp(message);
             return super.patch(message);
         } catch (err) {
             console.log(err)

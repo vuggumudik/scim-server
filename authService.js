@@ -1,32 +1,32 @@
-
 import logger from "./logger.js";
 
+const tenantMapping = {'azure-ad': 'azure-ad-tenant', 'okta': 'okta-tenant', 'test-tenant': 'test-tenant'};
 
-// TODO: Implement authentication and tenant resolution
 function authHandler(req) {
-    if (!authenticate(req)) {
-        logger.info("Authentication failed");
-        throw new Error("Authentication failed");
-    }
-    logger.debug("Authentication success");
+  if (!authenticate(req)) {
+    logger.info("Authentication failed");
+    throw new Error("Authentication failed");
+  }
+  logger.debug("Authentication success");
 }
 
-// Need to implement this method
 function authenticate(key) {
-    if (key) {
-        return true;
-    } else {
-        return false;
-    }
+  return !!key;
 }
 
-// Need to implement this method properly.
+// Assumption is, buy the time this is called, authentication is already done.
 function getTenant(key) {
-    return "test-tenant"
+    let token = "test-tenant";
+    // Just for testing purposes..
+    if (!key) {
+        return token;
+    }
+    const tokens = key.split(" ");
+    if (tokens.length > 1) {
+        token = tokens[1];
+    }
+    // check if key is present in the mapping
+    return tenantMapping[token] = tenantMapping[token] || token;
 }
 
-export {
-    authHandler,
-    authenticate,
-    getTenant
-}
+export { authHandler, authenticate, getTenant };

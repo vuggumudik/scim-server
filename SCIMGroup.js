@@ -85,11 +85,12 @@ class SCIMGroup extends SCIMMY.Resources.Group {
                 else throw new SCIMMY.Types.Error(404, null, `Resource ${this.id} not found`);
             }
         }
-        // super.read();
+        // return super.read();
     }
 
     // Copied from SCIMMY.Resources.Group
     async write(instance) {
+        // return super.write(instance);
         if (instance === undefined)
             throw new SCIMMY.Types.Error(400, "invalidSyntax", `Missing request body payload for ${!!this.id ? "PUT" : "POST"} operation`);
         if (Object(instance) !== instance || Array.isArray(instance))
@@ -109,6 +110,7 @@ class SCIMGroup extends SCIMMY.Resources.Group {
 
     // Copied from SCIMMY.Resources.Group
     async patch(message) {
+        logger.info("Group: Patch message is : " + JSON.stringify(message));
         // super.patch(message);
         if (message === undefined)
             throw new SCIMMY.Types.Error(400, "invalidSyntax", "Missing message body from PatchOp request");
@@ -166,9 +168,4 @@ class SCIMGroup extends SCIMMY.Resources.Group {
     }
 }
 
-
 export default SCIMGroup;
-
-
-
-
