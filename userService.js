@@ -9,13 +9,6 @@ import { addMissingComplexTypes, cleanUpData } from "./userUtils.js"
 class UserService {
     constructor(repository) {
         this.repo = repository;
-        // const { getUser, filterUsers, getUsers, createUser, updateUser, deleteUser } = this.repository;
-        // this.getUser = getUser;
-        // this.filterUsers = filterUsers;
-        // this.getUsers = getUsers;
-        // this.createUser = createUser;
-        // this.updateUser = updateUser;
-        // this.deleteUser = deleteUser;
     }
 
     async egressHandler(resource, data) {
@@ -101,7 +94,10 @@ class UserService {
                 cUser.id = id;
                 let cleanedUpData = cleanUpData(cUser);
                 await this.repo.updateUser(id, cleanedUpData, tenant);
-                // Clean up the data before returning
+                // if the user status is changed from active = true to active = false, then we need to delete the user from the group   
+                if (cUser.active === false) {
+                    await this.repo.deleteAllGroupsForUser(id, tenant);
+                }
                 return cleanedUpData;
             } else {
                 // Log unknown operation

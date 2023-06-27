@@ -147,6 +147,18 @@ class PGDBOperations {
     }
   }
 
+  async deleteAllGroupsForUser(userId, tenant) {
+    try {
+      const query = 'DELETE FROM groupMembers WHERE userid = $1 AND tenant = $2';
+      const values = [userId, tenant];
+      await this.db.query(query, values);
+      console.log('All groups for user deleted successfully');
+    } catch (err) {
+      console.error(err);
+      throw new Error(err);
+    }
+  }
+
   async deleteUser(userId, tenant) {
     try {
       const query = 'DELETE FROM users WHERE id = $1 AND tenant = $2';

@@ -44,9 +44,14 @@ class Repository {
         return updatedUser;
     }
 
+    async deleteAllGroupsForUser(id, tenant) {
+        await this.dbOps.deleteAllGroupsForUser(id, tenant);
+    }
+
     async deleteUser(id, tenant) {
         await this.dbOps.deleteUser(id, tenant);
     }
+
 
     // Filter users by field and value. Filter can be an array of filter criteria.
     // Example: [{userName: ['eq', 'bjensen']}, {active: ['eq', true]}].
