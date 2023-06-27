@@ -3,6 +3,12 @@ import logger from "./logger.js";
 const tenantMapping = {'azure-ad': 'azure-ad-tenant', 'okta': 'okta-tenant', 'test-tenant': 'test-tenant'};
 
 function authHandler(req) {
+  // // Skip authentication for the UI
+  // if (req.path.startsWith("/ui")) {
+  //   logger.debug("Skipping authentication for UI");
+  //   return;
+  // }
+  
   if (!authenticate(req)) {
     logger.info("Authentication failed");
     throw new Error("Authentication failed");

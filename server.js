@@ -45,7 +45,7 @@ SCIMMY.Resources.declare(SCIMGroup)
     .ingress((resource, data) => groupService.ingressHandler(resource, data))
     .egress(resource => groupService.egressHandler(resource))
     .degress(resource => groupService.degressHandler(resource))
-    .patch((resource, data) => groupService.patchHandler(resource, data)); // Handler for resource patching
+    // .patch((resource, data) => groupService.patchHandler(resource, data)); // Handler for resource patching
 
 
 // Middleware to map HTTP verbs to SCIM operations

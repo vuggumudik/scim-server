@@ -1,5 +1,6 @@
 import { generateUUID, getEgressLogString } from './utils.js';
 import logger from './logger.js';
+import _ from 'lodash';
 
 class GroupService {
   constructor(repository) {
@@ -32,6 +33,7 @@ class GroupService {
         const cGroup = this.convertToGroupObject(data);
         cGroup.id = resource.id;
         await this.repo.updateGroup(resource.id, cGroup, resource.tenant);
+        await this.updateGroupMembers(cGroup, resource.tenant);
         return cGroup;
       } else {
         logger.warn(`Unknown operation received from tenant ${resource.tenant}`);
@@ -86,35 +88,62 @@ class GroupService {
     }
   }
 
+  // Compare group members and update the group members as needed. Members information is in group.members
+  async updateGroupMembers(group, tenant) {
+    try {
+      const existingGroup = await this.repo.getGroup(group.id, tenant);
+      if (!existingGroup) {
+        throw new Error("Group not found");
+      } else {
+        const existingMembers = existingGroup.members;
+        const newMembers = group.members;
+        const membersToAdd = newMembers.filter(obj1 => !existingMembers.some(obj2 => obj2.value === obj1.value));
+        const membersToRemove = existingMembers.filter(obj2 => !newMembers.some(obj1 => obj1.value === obj2.value));
+        for (const member of membersToAdd) {
+          await this.repo.addGroupMember(group.id, member.value, tenant);
+        }
+        for (const member of membersToRemove) {
+          await this.repo.removeGroupMember(group.id, member.value, tenant);
+        }
+      }
+    } catch (err) {
+      logger.error(`Error in updateGroupMembers ${err}`);
+      throw err;
+    }
+  }
+
+    
+
   async patchHandler(resource, data) {
     try {
       logger.info(`Group: Patch operation received data with id ${resource.id}`);
       const membershipPatchOperations = this.getMembershipPatchOperations(data);
       const nonMembershipPatchOperations = this.getNonMembershipPatchOperations(data);
-
+      logger.info(`Group: Patch operation received data with id ${resource.id} membershipPatchOperations ${JSON.stringify(membershipPatchOperations)}`);
       if (membershipPatchOperations.length > 0) {
-        membershipPatchOperations.forEach(element => {
+        for (const element of membershipPatchOperations) {
           if (element.op === "add") {
             // add member
             const values = element.value;
-            values.forEach(v => {
-              this.repo.addGroupMember(resource.id, v.value, resource.tenant);
-            });
+            for (const v of values) {
+              await this.repo.addGroupMember(resource.id, v.value, resource.tenant);
+            }
           } else if (element.op === "remove") {
+            console.log("remove member calles with value" + element.value);
             // remove member
             const values = element.value;
-            values.forEach(v => {
-              this.repo.removeGroupMember(resource.id, v.value, resource.tenant);
-            });
+            for (const v of values) {
+              await this.repo.removeGroupMember(resource.id, v.value, resource.tenant);
+            }
           } else if (element.op === "replace") {
-            this.repo.deleteAllUserGroupAssociation(resource.id, resource.tenant);
+            await this.repo.deleteAllUserGroupAssociation(resource.id, resource.tenant);
             const values = element.value;
-            values.forEach(v => {
-              this.repo.addGroupMember(resource.id, v.value, resource.tenant);
-            });
+            for (const v of values) {
+              await this.repo.addGroupMember(resource.id, v.value, resource.tenant);
+            }
           }
-        });
-      }
+        }
+      }      
     } catch (err) {
       logger.error(`Error in patchHandler ${err}`);
       throw err;
@@ -122,7 +151,8 @@ class GroupService {
   }
 
   convertToGroupObject(data) {
-    return { ...data };
+    const deepCopy = _.cloneDeep(data, true);
+    return deepCopy;
   }
 
   getMembershipPatchOperations(message) {
