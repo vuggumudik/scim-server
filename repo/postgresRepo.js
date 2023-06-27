@@ -173,15 +173,37 @@ class PGDBOperations {
 
   async getGroupById(groupId, tenant) {
     try {
-      const query = 'SELECT * FROM groups WHERE id = $1 AND tenant = $2';
+
+      const query = 'SELECT * FROM groups g WHERE id = $1 AND tenant = $2';
+
       const values = [groupId, tenant];
       const result = await this.db.query(query, values);
       if (result.rows.length > 0) {
         const row = result.rows[0];
-        return new Group(row.id, row.externalid, row.displayname, row.groupdescription, row.status, row.tenant);
-      } else {
-        return null;
+        let group = new Group(row.id, row.externalid, row.displayname, row.groupdescription, row.status, row.tenant);
+        group.members = await this.getGroupMembers(groupId);
+        return group;
       }
+    } catch (err) {
+      throw new Error(err);
+    }
+  }
+
+  async getGroupMembers(groupId) {
+    try {
+      let groupMembers = [];
+      const query = 'SELECT * FROM groupmembers WHERE groupid = $1';
+      const values = [groupId];
+      const result = await this.db.query(query, values);
+      if (result.rows.length > 0) {
+        for (const row of result.rows) {
+          const groupMember = {
+            value: row.userid
+          };
+          groupMembers.push(groupMember);
+        }
+      }
+      return groupMembers;
     } catch (err) {
       throw new Error(err);
     }
@@ -194,7 +216,9 @@ class PGDBOperations {
       const result = await this.db.query(query, values);
       if (result.rows.length > 0) {
         const row = result.rows[0];
-        return new Group(row.id, row.externalid, row.displayname, row.groupdescription, row.status, row.tenant);
+        let group = Group(row.id, row.externalid, row.displayname, row.groupdescription, row.status, row.tenant);
+        group.members = getGroupMembers(groupId);
+        return group;
       } else {
         return null;
       }
