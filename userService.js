@@ -99,9 +99,10 @@ class UserService {
                 // Log the patch operation
                 const cUser = _.assign({}, data);
                 cUser.id = id;
-                await this.repo.updateUser(id, cUser, tenant);
+                let cleanedUpData = cleanUpData(cUser);
+                await this.repo.updateUser(id, cleanedUpData, tenant);
                 // Clean up the data before returning
-                return cleanUpData(cUser);
+                return cleanedUpData;
             } else {
                 // Log unknown operation
                 logger.warn(`Operation ${operation} is unknown`);
